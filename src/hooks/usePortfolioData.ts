@@ -45,7 +45,7 @@ const PortfolioContext = createContext<PortfolioContextType>({
 export function PortfolioProvider({ children }: { children: ReactNode }) {
   const cached = readCache();
   const [data, setData] = useState<PortfolioData>(cached || fallback);
-  const [loading, setLoading] = useState(!cached);
+  const [ready, setReady] = useState(!!cached);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,13 +64,24 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
           setData(fresh);
         }
       } catch {}
-      setLoading(false);
+      setReady(true);
     };
     fetchData();
   }, []);
 
+  if (!ready) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#060611]">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mx-auto" />
+          <p className="font-mono text-xs text-cyan-400/60 tracking-widest">LOADING_PORTFOLIO...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <PortfolioContext.Provider value={{ ...data, loading }}>
+    <PortfolioContext.Provider value={{ ...data, loading: false }}>
       {children}
     </PortfolioContext.Provider>
   );

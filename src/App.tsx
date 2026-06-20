@@ -17,7 +17,7 @@ import { GridOverlay } from './components/GridOverlay';
 import { ScanlineOverlay } from './components/ScanlineOverlay';
 import { BootScreen } from './components/BootScreen';
 import { ThemeProvider } from './lib/ThemeContext';
-import { PortfolioProvider, usePortfolioData } from './hooks/usePortfolioData';
+import { PortfolioProvider } from './hooks/usePortfolioData';
 
 // Pages
 import { Home } from './pages/Home';
@@ -42,18 +42,6 @@ function RootContent() {
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
   const isAdmin = currentPath.startsWith('/admin');
-  const { loading } = usePortfolioData();
-
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#060611]">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mx-auto" />
-          <p className="font-mono text-xs text-cyan-400/60 tracking-widest">LOADING_PORTFOLIO...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="relative min-h-screen text-[var(--text-primary)] flex flex-col justify-between overflow-x-hidden pt-16">
