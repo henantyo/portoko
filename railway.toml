@@ -1,9 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd backend && npm install && npm run build"
+rootDirectory = "backend"
 
 [deploy]
-startCommand = "cd backend && npm start"
-
-[build.env]
-NODE_VERSION = "20"
+startCommand = "npm start"
