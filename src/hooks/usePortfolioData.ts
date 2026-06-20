@@ -3,6 +3,7 @@ import { Profile, Project, Skill, Experience } from '../types';
 import { DEFAULT_PROFILE, DEFAULT_PROJECTS, DEFAULT_SKILLS, DEFAULT_EXPERIENCES } from '../data/seed';
 
 const BACKEND_BASE_URL = (import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:4000').toString();
+const CACHE_KEY = 'portoko_portfolio_cache';
 
 interface PortfolioData {
   profile: Profile;
@@ -11,16 +12,31 @@ interface PortfolioData {
   experiences: Experience[];
 }
 
-const fallback: PortfolioData = {
-  profile: DEFAULT_PROFILE,
-  projects: DEFAULT_PROJECTS,
-  skills: DEFAULT_SKILLS,
-  experiences: DEFAULT_EXPERIENCES,
-};
+function readCache(): PortfolioData | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
+
+function writeCache(data: PortfolioData) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  } catch {}
+}
+
+function getInitial(): PortfolioData {
+  return readCache() || {
+    profile: DEFAULT_PROFILE,
+    projects: DEFAULT_PROJECTS,
+    skills: DEFAULT_SKILLS,
+    experiences: DEFAULT_EXPERIENCES,
+  };
+}
 
 export function usePortfolioData() {
-  const [data, setData] = useState<PortfolioData>(fallback);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<PortfolioData>(getInitial);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,33 +45,19 @@ export function usePortfolioData() {
         const json = await res.json();
         if (res.ok && json?.success && json?.payload) {
           const p = json.payload;
-          setData({
-            profile: p.profile || fallback.profile,
-            projects: p.projects?.length ? p.projects : fallback.projects,
-            skills: p.skills?.length ? p.skills : fallback.skills,
-            experiences: p.experiences?.length ? p.experiences : fallback.experiences,
-          });
+          const fresh: PortfolioData = {
+            profile: p.profile || DEFAULT_PROFILE,
+            projects: p.projects?.length ? p.projects : DEFAULT_PROJECTS,
+            skills: p.skills?.length ? p.skills : DEFAULT_SKILLS,
+            experiences: p.experiences?.length ? p.experiences : DEFAULT_EXPERIENCES,
+          };
+          writeCache(fresh);
+          setData(fresh);
         }
-      } catch {
-        // fallback to localStorage
-        try {
-          const lp = localStorage.getItem('neo_profile');
-          const lpj = localStorage.getItem('neo_projects');
-          const lps = localStorage.getItem('neo_skills');
-          const lpe = localStorage.getItem('neo_experiences');
-          setData({
-            profile: lp ? JSON.parse(lp) : fallback.profile,
-            projects: lpj ? JSON.parse(lpj) : fallback.projects,
-            skills: lps ? JSON.parse(lps) : fallback.skills,
-            experiences: lpe ? JSON.parse(lpe) : fallback.experiences,
-          });
-        } catch {}
-      } finally {
-        setLoading(false);
-      }
+      } catch {}
     };
     fetchData();
   }, []);
 
-  return { ...data, loading };
+  return data;
 }
