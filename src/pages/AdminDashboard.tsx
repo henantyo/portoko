@@ -737,24 +737,37 @@ export const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
 
-                      {/* Avatar Upload (localStorage/base64) */}
+                      {/* Avatar Upload (via Supabase Storage) */}
                       <div className="space-y-2">
                         <label className="text-[var(--text-muted)] text-[10px] uppercase">Avatar / Photo (upload file)</label>
 
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              const result = reader.result;
-                              if (typeof result === 'string') {
-                                setProfileForm({ ...profileForm, avatar: result });
+                            try {
+                              const backendUrl = (import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:4000').toString();
+                              const adminToken = localStorage.getItem('neo_admin_token') || '';
+                              const fd = new FormData();
+                              fd.append('file', file);
+                              fd.append('folder', 'avatars');
+                              const res = await fetch(`${backendUrl}/api/admin/upload-image`, {
+                                method: 'POST',
+                                headers: { Authorization: `Bearer ${adminToken}` },
+                                body: fd,
+                              });
+                              const data = await res.json();
+                              if (res.ok && data?.success) {
+                                setProfileForm({ ...profileForm, avatar: data.imageUrl });
+                                addToast('success', 'AVATAR uploaded to storage.');
+                              } else {
+                                addToast('error', `AVATAR_UPLOAD_FAILED: ${data?.message || 'Unknown error'}`);
                               }
-                            };
-                            reader.readAsDataURL(file);
+                            } catch (err) {
+                              addToast('error', `AVATAR_UPLOAD_ERROR: ${err instanceof Error ? err.message : 'Connection error'}`);
+                            }
                           }}
                           className="w-full bg-[var(--bg-surface-strong)] border border-[var(--border-main)] p-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-cyan)]"
                         />
