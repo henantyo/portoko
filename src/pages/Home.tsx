@@ -158,13 +158,6 @@ export const Home: React.FC = () => {
                 <ArrowRight className="w-4 h-4" />
               </GlowButton>
             </Link>
-
-            <a href={profile.cvUrl} download className="inline-block">
-              <GlowButton variant="neutral">
-                <Download className="w-4 h-4" />
-                <span>DOWNLOAD CV</span>
-              </GlowButton>
-            </a>
           </motion.div>
 
           {/* Social Links */}
