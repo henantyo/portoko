@@ -8,7 +8,7 @@ import path from 'node:path';
 import { getAdminConfig, verifyPassword, updateAdminPassword } from './admin-config.js';
 
 
-dotenv.config();
+dotenv.config({ path: './.env' });
 
 
 
@@ -26,6 +26,15 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true });
+});
+
+app.get('/debug', (_req, res) => {
+  res.json({
+    hasSupabaseUrl: !!process.env.SUPABASE_URL,
+    hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    port: process.env.PORT,
+    cwd: process.cwd(),
+  });
 });
 
 // Basic rate limiting (admin endpoints)
@@ -545,14 +554,22 @@ app.post('/api/supabase/pull', adminLimiter, requireAdminAuth, async (_req, res)
 // PUBLIC API (no auth needed)
 // ----------------------------------------------------
 app.get('/api/public/data', async (_req, res) => {
-  const supabase = requireSupabaseConfig(res);
-  if (!supabase) return;
-
   try {
-    const { data: profileDb } = await supabase.from('profile').select('*').eq('id', 'main').single();
-    const { data: projectsDb } = await supabase.from('projects').select('*');
-    const { data: skillsDb } = await supabase.from('skills').select('*');
-    const { data: expDb } = await supabase.from('experiences').select('*');
+    const supabaseUrl = process.env.SUPABASE_URL || '';
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+      return res.status(500).json({ success: false, message: 'Supabase not configured' });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    const { data: profileDb } = await supabase.from('profile').select('*').eq('id', 'main').single().catch(() => ({ data: null }));
+    const { data: projectsDb } = await supabase.from('projects').select('*').catch(() => ({ data: [] }));
+    const { data: skillsDb } = await supabase.from('skills').select('*').catch(() => ({ data: [] }));
+    const { data: expDb } = await supabase.from('experiences').select('*').catch(() => ({ data: [] }));
 
     return res.json({
       success: true,
@@ -564,7 +581,7 @@ app.get('/api/public/data', async (_req, res) => {
       },
     });
   } catch (err: any) {
-    return res.status(500).json({ success: false, message: err?.message });
+    return res.status(500).json({ success: false, message: err?.message || 'Unknown error' });
   }
 });
 
