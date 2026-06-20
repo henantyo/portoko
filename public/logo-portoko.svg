@@ -1,0 +1,45 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff88;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00ccff;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow-filter">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#0a1f3f" stroke-width="2"/>
+  
+  <!-- Outer hexagon -->
+  <path d="M 100 30 L 150 55 L 150 145 L 100 170 L 50 145 L 50 55 Z" 
+        fill="none" stroke="url(#glow)" stroke-width="2.5" filter="url(#glow-filter)"/>
+  
+  <!-- Inner circle with pulse -->
+  <circle cx="100" cy="100" r="35" fill="none" stroke="url(#glow)" stroke-width="1.5" filter="url(#glow-filter)" opacity="0.7"/>
+  
+  <!-- Center dot -->
+  <circle cx="100" cy="100" r="4" fill="url(#glow)" filter="url(#glow-filter)"/>
+  
+  <!-- Corner brackets top-left -->
+  <path d="M 55 45 L 45 45 L 45 55" fill="none" stroke="#00ff88" stroke-width="1.5" filter="url(#glow-filter)"/>
+  
+  <!-- Corner brackets top-right -->
+  <path d="M 145 45 L 155 45 L 155 55" fill="none" stroke="#00ff88" stroke-width="1.5" filter="url(#glow-filter)"/>
+  
+  <!-- Corner brackets bottom-left -->
+  <path d="M 45 145 L 45 155 L 55 155" fill="none" stroke="#00ccff" stroke-width="1.5" filter="url(#glow-filter)"/>
+  
+  <!-- Corner brackets bottom-right -->
+  <path d="M 155 145 L 155 155 L 145 155" fill="none" stroke="#00ccff" stroke-width="1.5" filter="url(#glow-filter)"/>
+  
+  <!-- Grid lines -->
+  <line x1="70" y1="70" x2="130" y2="70" stroke="url(#glow)" stroke-width="0.5" opacity="0.5"/>
+  <line x1="70" y1="100" x2="130" y2="100" stroke="url(#glow)" stroke-width="0.5" opacity="0.5"/>
+  <line x1="70" y1="130" x2="130" y2="130" stroke="url(#glow)" stroke-width="0.5" opacity="0.5"/>
+</svg>

@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: "Space Grotesk", "Rajdhani", "Sora", sans-serif;
+  --font-rajdhani: "Rajdhani", sans-serif;
+  --font-body: "Sora", "Inter", sans-serif;
+  
+  --color-neon-cyan: #22d3ee;
+  --color-neon-magenta: #ec4899;
+  --color-neon-violet: #8b5cf6;
+  
+  --color-cyber-bg-start: #0f1424;
+  --color-cyber-bg-end: #1a1033;
+  --color-cyber-dark: #0d1117;
+  --color-cyber-card: rgba(22, 27, 46, 0.6);
+  --color-cyber-border: rgba(34, 211, 238, 0.15);
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ===== THEME CSS VARIABLES ===== */
+:root, html.dark-theme {
+  --bg-page: #060611;
+  --bg-page-gradient: linear-gradient(180deg, #060611 0%, #0b1026 45%, #050713 100%);
+  --bg-surface: rgba(15, 23, 42, 0.25);
+  --bg-surface-strong: rgba(15, 23, 42, 0.6);
+  --bg-surface-subtle: rgba(15, 23, 42, 0.15);
+  --bg-input: rgba(2, 6, 23, 0.8);
+  --bg-overlay: rgba(13, 17, 23, 0.7);
+  --bg-overlay-strong: rgba(13, 17, 23, 0.95);
+  --bg-accent: rgba(34, 211, 238, 0.05);
+  --bg-accent-strong: rgba(34, 211, 238, 0.2);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #475569;
+
+  --border-main: rgba(34, 211, 238, 0.10);
+  --border-strong: rgba(34, 211, 238, 0.20);
+  --border-muted: rgba(148, 163, 184, 0.15);
+
+  --accent-cyan: #22d3ee;
+  --accent-cyan-dim: rgba(34, 211, 238, 0.6);
+  --accent-pink: #ec4899;
+  --accent-pink-dim: rgba(236, 72, 153, 0.6);
+
+  --scrollbar-track: rgba(13, 17, 23, 0.8);
+  --scrollbar-thumb: rgba(34, 211, 238, 0.2);
+  --scrollbar-thumb-hover: rgba(34, 211, 238, 0.5);
+
+  --gradient-radial-1: rgba(139, 92, 246, 0.22);
+  --gradient-radial-2: rgba(34, 211, 238, 0.18);
+  --gradient-radial-3: rgba(236, 72, 153, 0.14);
+
+  color-scheme: dark;
+}
+
+html.light-theme {
+  --bg-page: #f0f4ff;
+  --bg-page-gradient: linear-gradient(180deg, #f0f4ff 0%, #e8eeff 45%, #f5f7ff 100%);
+  --bg-surface: rgba(255, 255, 255, 0.7);
+  --bg-surface-strong: rgba(255, 255, 255, 0.85);
+  --bg-surface-subtle: rgba(255, 255, 255, 0.5);
+  --bg-input: rgba(255, 255, 255, 0.8);
+  --bg-overlay: rgba(255, 255, 255, 0.85);
+  --bg-overlay-strong: rgba(255, 255, 255, 0.95);
+  --bg-accent: rgba(34, 211, 238, 0.08);
+  --bg-accent-strong: rgba(34, 211, 238, 0.15);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-muted: #94a3b8;
+
+  --border-main: rgba(148, 163, 184, 0.20);
+  --border-strong: rgba(148, 163, 184, 0.35);
+  --border-muted: rgba(148, 163, 184, 0.12);
+
+  --accent-cyan: #0891b2;
+  --accent-cyan-dim: rgba(8, 145, 178, 0.6);
+  --accent-pink: #db2777;
+  --accent-pink-dim: rgba(219, 39, 119, 0.6);
+
+  --scrollbar-track: #e2e8f0;
+  --scrollbar-thumb: rgba(34, 211, 238, 0.35);
+  --scrollbar-thumb-hover: rgba(34, 211, 238, 0.6);
+
+  --gradient-radial-1: rgba(139, 92, 246, 0.10);
+  --gradient-radial-2: rgba(34, 211, 238, 0.10);
+  --gradient-radial-3: rgba(236, 72, 153, 0.08);
+
+  color-scheme: light;
+}
+
+/* ===== GLOBAL STYLES ===== */
+html, body {
+  background-color: var(--bg-page);
+  background-image:
+    radial-gradient(1200px 800px at 20% 10%, var(--gradient-radial-1) 0%, transparent 60%),
+    radial-gradient(900px 650px at 85% 25%, var(--gradient-radial-2) 0%, transparent 55%),
+    radial-gradient(1000px 700px at 45% 100%, var(--gradient-radial-3) 0%, transparent 60%),
+    var(--bg-page-gradient);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); box-shadow: 0 0 8px var(--scrollbar-thumb-hover); }
+
+::selection { background: rgba(34, 211, 238, 0.3); color: var(--text-primary); }
+
+/* Tailwind v4 custom utilities */
+.animate-scanline { animation: scanline 8s linear infinite; }
+.animate-shimmer { animation: shimmer 2s infinite; }
