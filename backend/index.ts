@@ -273,6 +273,104 @@ app.post('/api/supabase/push', adminLimiter, requireAdminAuth, async (req, res) 
   }
 });
 
+// ----------------------------------------------------
+// INDIVIDUAL CRUD ENDPOINTS
+// ----------------------------------------------------
+
+// GET all data
+app.get('/api/admin/data', adminLimiter, requireAdminAuth, async (_req, res) => {
+  const supabase = requireSupabaseConfig(res);
+  if (!supabase) return;
+
+  try {
+    const { data: profileDb } = await supabase.from('profile').select('*').eq('id', 'main').single();
+    const { data: projectsDb } = await supabase.from('projects').select('*');
+    const { data: skillsDb } = await supabase.from('skills').select('*');
+    const { data: expDb } = await supabase.from('experiences').select('*');
+
+    return res.json({
+      success: true,
+      payload: {
+        profile: profileDb ? mapDbToProfile(profileDb) : null,
+        projects: Array.isArray(projectsDb) ? projectsDb.map(mapDbToProject) : [],
+        skills: Array.isArray(skillsDb) ? skillsDb.map(mapDbToSkill) : [],
+        experiences: Array.isArray(expDb) ? expDb.map(mapDbToExperience) : [],
+      },
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err?.message || 'Unknown error' });
+  }
+});
+
+// Save profile
+app.post('/api/admin/profile', adminLimiter, requireAdminAuth, async (req, res) => {
+  const supabase = requireSupabaseConfig(res);
+  if (!supabase) return;
+
+  try {
+    const dbProfile = mapProfileToDb(req.body);
+    const { error } = await supabase.from('profile').upsert(dbProfile);
+    if (error) throw error;
+    return res.json({ success: true });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err?.message });
+  }
+});
+
+// Save projects (bulk upsert)
+app.post('/api/admin/projects', adminLimiter, requireAdminAuth, async (req, res) => {
+  const supabase = requireSupabaseConfig(res);
+  if (!supabase) return;
+
+  try {
+    const projects = req.body;
+    if (!Array.isArray(projects)) return res.status(400).json({ success: false, message: 'Expected array' });
+    const dbProjects = projects.map(mapProjectToDb);
+    await supabase.from('projects').delete().neq('id', 'keep-all-dummy');
+    const { error } = await supabase.from('projects').insert(dbProjects);
+    if (error) throw error;
+    return res.json({ success: true });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err?.message });
+  }
+});
+
+// Save skills (bulk upsert)
+app.post('/api/admin/skills', adminLimiter, requireAdminAuth, async (req, res) => {
+  const supabase = requireSupabaseConfig(res);
+  if (!supabase) return;
+
+  try {
+    const skills = req.body;
+    if (!Array.isArray(skills)) return res.status(400).json({ success: false, message: 'Expected array' });
+    const dbSkills = skills.map(mapSkillToDb);
+    await supabase.from('skills').delete().neq('id', 'keep-all-dummy');
+    const { error } = await supabase.from('skills').insert(dbSkills);
+    if (error) throw error;
+    return res.json({ success: true });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err?.message });
+  }
+});
+
+// Save experiences (bulk upsert)
+app.post('/api/admin/experiences', adminLimiter, requireAdminAuth, async (req, res) => {
+  const supabase = requireSupabaseConfig(res);
+  if (!supabase) return;
+
+  try {
+    const experiences = req.body;
+    if (!Array.isArray(experiences)) return res.status(400).json({ success: false, message: 'Expected array' });
+    const dbExps = experiences.map(mapExperienceToDb);
+    await supabase.from('experiences').delete().neq('id', 'keep-all-dummy');
+    const { error } = await supabase.from('experiences').insert(dbExps);
+    if (error) throw error;
+    return res.json({ success: true });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err?.message });
+  }
+});
+
 // Upload project image to Supabase Storage (bucket private + signed URL)
 // Expects multipart/form-data with fields:
 // - file: image

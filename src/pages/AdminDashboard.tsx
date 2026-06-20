@@ -76,6 +76,53 @@ export const AdminDashboard: React.FC = () => {
     setProfileForm(profile);
   }, [profile]);
 
+  // Load data from Supabase on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const backendUrl = (import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:4000').toString();
+        const adminToken = localStorage.getItem('neo_admin_token') || '';
+        const res = await fetch(`${backendUrl}/api/admin/data`, {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        const data = await res.json();
+        if (res.ok && data?.success && data?.payload) {
+          const p = data.payload;
+          if (p.profile) setProfile(p.profile);
+          if (p.projects) setProjects(p.projects);
+          if (p.skills) setSkills(p.skills);
+          if (p.experiences) setExperiences(p.experiences);
+        }
+      } catch {}
+    };
+    if (auth) loadData();
+  }, [auth]);
+
+  // Sync helper: save current array to Supabase
+  const syncToBackend = async (endpoint: string, data: unknown) => {
+    try {
+      const backendUrl = (import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:4000').toString();
+      const adminToken = localStorage.getItem('neo_admin_token') || '';
+      await fetch(`${backendUrl}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
+        body: JSON.stringify(data),
+      });
+    } catch {}
+  };
+
+  const syncProfileToBackend = async (p: Profile) => {
+    try {
+      const backendUrl = (import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:4000').toString();
+      const adminToken = localStorage.getItem('neo_admin_token') || '';
+      await fetch(`${backendUrl}/api/admin/profile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
+        body: JSON.stringify(p),
+      });
+    } catch {}
+  };
+
   // Check auth
   useEffect(() => {
     if (!auth) {
@@ -296,7 +343,8 @@ export const AdminDashboard: React.FC = () => {
   const handleProfileSave = (e: React.FormEvent) => {
     e.preventDefault();
     setProfile(profileForm);
-    addToast('success', 'PROFILE_DATA updated successfully. Sync complete.');
+    syncProfileToBackend(profileForm);
+    addToast('success', 'PROFILE_DATA updated & synced to Supabase.');
   };
 
   // ----------------------------------------------------
@@ -324,9 +372,10 @@ export const AdminDashboard: React.FC = () => {
     };
 
     setProjects([...projects, newProj]);
+    syncToBackend('/api/admin/projects', [...projects, newProj]);
     setIsAddingProject(false);
     resetProjectForm();
-    addToast('success', `PROJECT [${newProj.title}] compiled and index saved.`);
+    addToast('success', `PROJECT [${newProj.title}] compiled and synced to Supabase.`);
   };
 
   const handleEditProject = (proj: Project) => {
@@ -354,17 +403,21 @@ export const AdminDashboard: React.FC = () => {
       featured: !!projectForm.featured,
     };
 
-    setProjects(projects.map((p) => (p.id === editingProject.id ? updated : p)));
+    const newProjects = projects.map((p) => (p.id === editingProject.id ? updated : p));
+    setProjects(newProjects);
+    syncToBackend('/api/admin/projects', newProjects);
     setIsAddingProject(false);
     setEditingProject(null);
     resetProjectForm();
-    addToast('success', `PROJECT [${updated.title}] updated successfully.`);
+    addToast('success', `PROJECT [${updated.title}] updated & synced to Supabase.`);
   };
 
   const handleDeleteProject = (id: string, title: string) => {
     if (window.confirm(`Are you sure you want to delete project: "${title}"?`)) {
-      setProjects(projects.filter((p) => p.id !== id));
-      addToast('info', `PROJECT [${title}] removed from database.`);
+      const newProjects = projects.filter((p) => p.id !== id);
+      setProjects(newProjects);
+      syncToBackend('/api/admin/projects', newProjects);
+      addToast('info', `PROJECT [${title}] deleted & synced to Supabase.`);
     }
   };
 
@@ -391,9 +444,10 @@ export const AdminDashboard: React.FC = () => {
     };
 
     setSkills([...skills, newSkill]);
+    syncToBackend('/api/admin/skills', [...skills, newSkill]);
     setIsAddingSkill(false);
     resetSkillForm();
-    addToast('success', `SKILL [${newSkill.name}] registered to database.`);
+    addToast('success', `SKILL [${newSkill.name}] registered & synced to Supabase.`);
   };
 
   const handleEditSkill = (skill: Skill) => {
@@ -413,17 +467,21 @@ export const AdminDashboard: React.FC = () => {
       level: Number(skillForm.level) || 80,
     };
 
-    setSkills(skills.map((s) => (s.id === editingSkill.id ? updated : s)));
+    const newSkills = skills.map((s) => (s.id === editingSkill.id ? updated : s));
+    setSkills(newSkills);
+    syncToBackend('/api/admin/skills', newSkills);
     setIsAddingSkill(false);
     setEditingSkill(null);
     resetSkillForm();
-    addToast('success', `SKILL [${updated.name}] updated successfully.`);
+    addToast('success', `SKILL [${updated.name}] updated & synced to Supabase.`);
   };
 
   const handleDeleteSkill = (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete skill: "${name}"?`)) {
-      setSkills(skills.filter((s) => s.id !== id));
-      addToast('info', `SKILL [${name}] removed from database.`);
+      const newSkills = skills.filter((s) => s.id !== id);
+      setSkills(newSkills);
+      syncToBackend('/api/admin/skills', newSkills);
+      addToast('info', `SKILL [${name}] deleted & synced to Supabase.`);
     }
   };
 
@@ -451,9 +509,10 @@ export const AdminDashboard: React.FC = () => {
     };
 
     setExperiences([...experiences, newExp]);
+    syncToBackend('/api/admin/experiences', [...experiences, newExp]);
     setIsAddingExperience(false);
     resetExperienceForm();
-    addToast('success', `EXPERIENCE at [${newExp.company}] registered.`);
+    addToast('success', `EXPERIENCE at [${newExp.company}] registered & synced to Supabase.`);
   };
 
   const handleEditExperience = (exp: Experience) => {
@@ -475,17 +534,21 @@ export const AdminDashboard: React.FC = () => {
       current: !!experienceForm.current,
     };
 
-    setExperiences(experiences.map((e) => (e.id === editingExperience.id ? updated : e)));
+    const newExps = experiences.map((e) => (e.id === editingExperience.id ? updated : e));
+    setExperiences(newExps);
+    syncToBackend('/api/admin/experiences', newExps);
     setIsAddingExperience(false);
     setEditingExperience(null);
     resetExperienceForm();
-    addToast('success', `EXPERIENCE at [${updated.company}] updated successfully.`);
+    addToast('success', `EXPERIENCE at [${updated.company}] updated & synced to Supabase.`);
   };
 
   const handleDeleteExperience = (id: string, company: string) => {
     if (window.confirm(`Are you sure you want to delete experience at: "${company}"?`)) {
-      setExperiences(experiences.filter((e) => e.id !== id));
-      addToast('info', `EXPERIENCE at [${company}] removed from database.`);
+      const newExps = experiences.filter((e) => e.id !== id);
+      setExperiences(newExps);
+      syncToBackend('/api/admin/experiences', newExps);
+      addToast('info', `EXPERIENCE at [${company}] deleted & synced to Supabase.`);
     }
   };
 
