@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext, type ReactNode } from 'react';
 import { Profile, Project, Skill, Experience } from '../types';
 import { DEFAULT_PROFILE, DEFAULT_PROJECTS, DEFAULT_SKILLS, DEFAULT_EXPERIENCES } from '../data/seed';
 
@@ -26,17 +26,26 @@ function writeCache(data: PortfolioData) {
   } catch {}
 }
 
-function getInitial(): PortfolioData {
-  return readCache() || {
-    profile: DEFAULT_PROFILE,
-    projects: DEFAULT_PROJECTS,
-    skills: DEFAULT_SKILLS,
-    experiences: DEFAULT_EXPERIENCES,
-  };
+const fallback: PortfolioData = {
+  profile: DEFAULT_PROFILE,
+  projects: DEFAULT_PROJECTS,
+  skills: DEFAULT_SKILLS,
+  experiences: DEFAULT_EXPERIENCES,
+};
+
+interface PortfolioContextType extends PortfolioData {
+  loading: boolean;
 }
 
-export function usePortfolioData() {
-  const [data, setData] = useState<PortfolioData>(getInitial);
+const PortfolioContext = createContext<PortfolioContextType>({
+  ...fallback,
+  loading: true,
+});
+
+export function PortfolioProvider({ children }: { children: ReactNode }) {
+  const cached = readCache();
+  const [data, setData] = useState<PortfolioData>(cached || fallback);
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,9 +64,18 @@ export function usePortfolioData() {
           setData(fresh);
         }
       } catch {}
+      setLoading(false);
     };
     fetchData();
   }, []);
 
-  return data;
+  return (
+    <PortfolioContext.Provider value={{ ...data, loading }}>
+      {children}
+    </PortfolioContext.Provider>
+  );
+}
+
+export function usePortfolioData() {
+  return useContext(PortfolioContext);
 }
