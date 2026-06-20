@@ -541,6 +541,33 @@ app.post('/api/supabase/pull', adminLimiter, requireAdminAuth, async (_req, res)
   }
 });
 
+// ----------------------------------------------------
+// PUBLIC API (no auth needed)
+// ----------------------------------------------------
+app.get('/api/public/data', async (_req, res) => {
+  const supabase = requireSupabaseConfig(res);
+  if (!supabase) return;
+
+  try {
+    const { data: profileDb } = await supabase.from('profile').select('*').eq('id', 'main').single();
+    const { data: projectsDb } = await supabase.from('projects').select('*');
+    const { data: skillsDb } = await supabase.from('skills').select('*');
+    const { data: expDb } = await supabase.from('experiences').select('*');
+
+    return res.json({
+      success: true,
+      payload: {
+        profile: profileDb ? mapDbToProfile(profileDb) : null,
+        projects: Array.isArray(projectsDb) ? projectsDb.map(mapDbToProject) : [],
+        skills: Array.isArray(skillsDb) ? skillsDb.map(mapDbToSkill) : [],
+        experiences: Array.isArray(expDb) ? expDb.map(mapDbToExperience) : [],
+      },
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, message: err?.message });
+  }
+});
+
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
 app.listen(port, () => {
   // eslint-disable-next-line no-console

@@ -1,13 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Skill, SkillCategory } from '../types';
-import { DEFAULT_SKILLS } from '../data/seed';
+import { usePortfolioData } from '../hooks/usePortfolioData';
+import { SkillCategory } from '../types';
 import { CornerBrackets } from '../components/CornerBrackets';
 import { Cpu, Database, Wrench, Layers } from 'lucide-react';
 
 export const Skills: React.FC = () => {
-  const [skills] = useLocalStorage<Skill[]>('neo_skills', DEFAULT_SKILLS);
+  const { skills } = usePortfolioData();
 
   // Group skills by category
   const categories: { name: SkillCategory; label: string; icon: React.ReactNode; desc: string }[] = [

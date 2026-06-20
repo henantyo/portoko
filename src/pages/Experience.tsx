@@ -1,13 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Experience } from '../types';
-import { DEFAULT_EXPERIENCES } from '../data/seed';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 import { CornerBrackets } from '../components/CornerBrackets';
 import { Calendar, Briefcase } from 'lucide-react';
 
 export const ExperiencePage: React.FC = () => {
-  const [experiences] = useLocalStorage<Experience[]>('neo_experiences', DEFAULT_EXPERIENCES);
+  const { experiences } = usePortfolioData();
 
   return (
     <div className="space-y-16 py-6 md:py-12 overflow-hidden">

@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Project } from '../types';
-import { DEFAULT_PROJECTS } from '../data/seed';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 import { CornerBrackets } from '../components/CornerBrackets';
 import { Search, Github } from 'lucide-react';
 
 export const Projects: React.FC = () => {
-  const [projects] = useLocalStorage<Project[]>('neo_projects', DEFAULT_PROJECTS);
+  const { projects } = usePortfolioData();
   const [filter, setFilter] = useState<'ALL' | 'FEATURED' | 'LARAVEL' | 'REACT'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 

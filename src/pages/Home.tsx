@@ -2,18 +2,13 @@ import React from 'react';
 import { Link } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { Github, Linkedin, Instagram, ArrowRight, Download, Terminal, Briefcase, Award, Code, ChevronRight } from 'lucide-react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 import { useTypingEffect } from '../hooks/useTypingEffect';
-import { Profile, Project, Skill, Experience } from '../types';
-import { DEFAULT_PROFILE, DEFAULT_PROJECTS, DEFAULT_SKILLS, DEFAULT_EXPERIENCES } from '../data/seed';
 import { CornerBrackets } from '../components/CornerBrackets';
 import { GlowButton } from '../components/GlowButton';
 
 export const Home: React.FC = () => {
-  const [profile] = useLocalStorage<Profile>('neo_profile', DEFAULT_PROFILE);
-  const [projects] = useLocalStorage<Project[]>('neo_projects', DEFAULT_PROJECTS);
-  const [skills] = useLocalStorage<Skill[]>('neo_skills', DEFAULT_SKILLS);
-  const [experiences] = useLocalStorage<Experience[]>('neo_experiences', DEFAULT_EXPERIENCES);
+  const { profile, projects, skills, experiences } = usePortfolioData();
 
   const typedTitle = useTypingEffect([
     profile.title,

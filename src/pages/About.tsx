@@ -1,13 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Profile } from '../types';
-import { DEFAULT_PROFILE } from '../data/seed';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 import { CornerBrackets } from '../components/CornerBrackets';
 import { School, MapPin, Code2, ShieldAlert } from 'lucide-react';
 
 export const About: React.FC = () => {
-  const [profile] = useLocalStorage<Profile>('neo_profile', DEFAULT_PROFILE);
+  const { profile } = usePortfolioData();
 
   const stats = [
     { label: 'INSTITUSI', value: profile.school, sub: 'Jurusan RPL', icon: <School className="w-5 h-5 text-[var(--accent-cyan)]" /> },
