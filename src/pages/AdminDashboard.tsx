@@ -17,7 +17,7 @@ import {
   Terminal, ArrowLeft, Download, Upload, Database, CloudLightning, Copy, Lock
 } from 'lucide-react';
 
-type TabType = 'profile' | 'projects' | 'skills' | 'experiences' | 'supabase' | 'security';
+type TabType = 'profile' | 'projects' | 'skills' | 'experiences';
 
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -614,8 +614,6 @@ export const AdminDashboard: React.FC = () => {
                   { id: 'projects', label: 'CRUD PROJECTS', icon: <Code className="w-4 h-4" /> },
                   { id: 'skills', label: 'CRUD SKILLS', icon: <Award className="w-4 h-4" /> },
                   { id: 'experiences', label: 'CRUD EXPERIENCE', icon: <Briefcase className="w-4 h-4" /> },
-                  { id: 'supabase', label: 'SUPABASE CLOUD', icon: <Database className="w-4 h-4 text-[var(--accent-cyan)]" /> },
-                  { id: 'security', label: 'SECURITY SETTINGS', icon: <Lock className="w-4 h-4 text-[var(--accent-pink)]" /> },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -1393,19 +1391,8 @@ fd.append('projectId', editingProject?.id || projectForm?.id || '');
                   )}
                 </div>
               )}
-
-              {/* TAB 5: SUPABASE INTEGRATION WORKSPACE */}
-              {activeTab === 'supabase' && (
-                <div className="space-y-6 text-left">
-                  <div className="border-b border-[var(--border-main)] pb-4 mb-4">
-                    <h3 className="font-rajdhani text-lg font-bold text-[var(--text-primary)] tracking-wider flex items-center gap-2">
-                      <Database className="w-5 h-5 text-[var(--accent-cyan)]" />
-                      <span>SUPABASE CLOUD GATEWAY INTEGRATION</span>
-                    </h3>
-                    <p className="font-mono text-[10px] text-[var(--text-muted)]">
-                      Hubungkan portofolio Anda langsung ke Database Supabase Cloud yang asli dan gratis!
-                    </p>
-                  </div>
+            </div>
+          </div>
 
                   {/* Supabase Config Form */}
                   <form onSubmit={handleSaveSupabaseConfig} className="space-y-4 font-mono text-xs border border-[var(--border-main)] bg-[var(--bg-surface)] p-5">
