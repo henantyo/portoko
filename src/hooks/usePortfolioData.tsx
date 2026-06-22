@@ -21,31 +21,34 @@ function readCache(): PortfolioData | null {
 }
 
 function writeCache(data: PortfolioData) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch {}
+}
+
+function readLocalFallback(): PortfolioData {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-  } catch {}
+    return {
+      profile: JSON.parse(localStorage.getItem('neo_profile') || 'null') || DEFAULT_PROFILE,
+      projects: JSON.parse(localStorage.getItem('neo_projects') || 'null') || DEFAULT_PROJECTS,
+      skills: JSON.parse(localStorage.getItem('neo_skills') || 'null') || DEFAULT_SKILLS,
+      experiences: JSON.parse(localStorage.getItem('neo_experiences') || 'null') || DEFAULT_EXPERIENCES,
+    };
+  } catch {
+    return { profile: DEFAULT_PROFILE, projects: DEFAULT_PROJECTS, skills: DEFAULT_SKILLS, experiences: DEFAULT_EXPERIENCES };
+  }
 }
 
-const fallback: PortfolioData = {
-  profile: DEFAULT_PROFILE,
-  projects: DEFAULT_PROJECTS,
-  skills: DEFAULT_SKILLS,
-  experiences: DEFAULT_EXPERIENCES,
-};
-
-interface PortfolioContextType extends PortfolioData {
-  loading: boolean;
+function getInitial(): PortfolioData {
+  return readCache() || readLocalFallback();
 }
+
+interface PortfolioContextType extends PortfolioData {}
 
 const PortfolioContext = createContext<PortfolioContextType>({
-  ...fallback,
-  loading: true,
+  ...getInitial(),
 });
 
 export function PortfolioProvider({ children }: { children: ReactNode }) {
-  const cached = readCache();
-  const [data, setData] = useState<PortfolioData>(cached || fallback);
-  const [ready, setReady] = useState(!!cached);
+  const [data, setData] = useState<PortfolioData>(getInitial);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,34 +57,24 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         const json = await res.json();
         if (res.ok && json?.success && json?.payload) {
           const p = json.payload;
-          const fresh: PortfolioData = {
-            profile: p.profile || DEFAULT_PROFILE,
-            projects: p.projects?.length ? p.projects : DEFAULT_PROJECTS,
-            skills: p.skills?.length ? p.skills : DEFAULT_SKILLS,
-            experiences: p.experiences?.length ? p.experiences : DEFAULT_EXPERIENCES,
-          };
-          writeCache(fresh);
-          setData(fresh);
+          if (p.projects?.length || p.profile) {
+            const fresh: PortfolioData = {
+              profile: p.profile || readLocalFallback().profile,
+              projects: p.projects?.length ? p.projects : readLocalFallback().projects,
+              skills: p.skills?.length ? p.skills : readLocalFallback().skills,
+              experiences: p.experiences?.length ? p.experiences : readLocalFallback().experiences,
+            };
+            writeCache(fresh);
+            setData(fresh);
+          }
         }
       } catch {}
-      setReady(true);
     };
     fetchData();
   }, []);
 
-  if (!ready) {
-    return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#060611]">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-2 border-cyan-400/30 border-t-cyan-400 rounded-full animate-spin mx-auto" />
-          <p className="font-mono text-xs text-cyan-400/60 tracking-widest">LOADING_PORTFOLIO...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <PortfolioContext.Provider value={{ ...data, loading: false }}>
+    <PortfolioContext.Provider value={data}>
       {children}
     </PortfolioContext.Provider>
   );
