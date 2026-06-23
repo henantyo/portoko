@@ -47,30 +47,38 @@ const PortfolioContext = createContext<PortfolioContextType>({
   ...getInitial(),
 });
 
+export function refreshPortfolio() {
+  window.dispatchEvent(new Event('portfolio-refresh'));
+}
+
 export function PortfolioProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<PortfolioData>(getInitial);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch(`${BACKEND_BASE_URL}/api/public/data`);
-        const json = await res.json();
-        if (res.ok && json?.success && json?.payload) {
-          const p = json.payload;
-          if (p.projects?.length || p.profile) {
-            const fresh: PortfolioData = {
-              profile: p.profile || readLocalFallback().profile,
-              projects: p.projects?.length ? p.projects : readLocalFallback().projects,
-              skills: p.skills?.length ? p.skills : readLocalFallback().skills,
-              experiences: p.experiences?.length ? p.experiences : readLocalFallback().experiences,
-            };
-            writeCache(fresh);
-            setData(fresh);
-          }
+  const fetchData = async () => {
+    try {
+      const res = await fetch(`${BACKEND_BASE_URL}/api/public/data`);
+      const json = await res.json();
+      if (res.ok && json?.success && json?.payload) {
+        const p = json.payload;
+        if (p.projects?.length || p.profile) {
+          const fresh: PortfolioData = {
+            profile: p.profile || readLocalFallback().profile,
+            projects: p.projects?.length ? p.projects : readLocalFallback().projects,
+            skills: p.skills?.length ? p.skills : readLocalFallback().skills,
+            experiences: p.experiences?.length ? p.experiences : readLocalFallback().experiences,
+          };
+          writeCache(fresh);
+          setData(fresh);
         }
-      } catch {}
-    };
+      }
+    } catch {}
+  };
+
+  useEffect(() => {
     fetchData();
+    const handler = () => fetchData();
+    window.addEventListener('portfolio-refresh', handler);
+    return () => window.removeEventListener('portfolio-refresh', handler);
   }, []);
 
   return (

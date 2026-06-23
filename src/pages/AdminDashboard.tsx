@@ -12,6 +12,7 @@ import {
 import { 
   pushLocalToSupabase, pullSupabaseToLocal 
 } from '../lib/supabaseSync';
+import { refreshPortfolio } from '../hooks/usePortfolioData';
 import { 
   User, Code, Award, Briefcase, LogOut, Plus, Trash2, Edit2, Check, X, 
   Terminal, ArrowLeft, Download, Upload, Database, CloudLightning, Copy, Lock
@@ -345,6 +346,7 @@ export const AdminDashboard: React.FC = () => {
     setProfile(profileForm);
     syncProfileToBackend(profileForm);
     localStorage.removeItem('portoko_portfolio_cache');
+    refreshPortfolio();
     addToast('success', 'PROFILE_DATA updated & synced to Supabase.');
   };
 
