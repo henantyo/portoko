@@ -99,15 +99,15 @@ export const AdminDashboard: React.FC = () => {
     if (auth) loadData();
   }, [auth]);
 
-  // Sync helper: save current array to Supabase
-  const syncToBackend = async (endpoint: string, data: unknown) => {
+  // Sync helper: save ALL data to Supabase
+  const syncAllToBackend = async () => {
     try {
       const backendUrl = (import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:4000').toString();
       const adminToken = localStorage.getItem('neo_admin_token') || '';
-      await fetch(`${backendUrl}${endpoint}`, {
+      await fetch(`${backendUrl}/api/admin/sync-all`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ projects, skills, experiences }),
       });
     } catch {}
   };
@@ -375,7 +375,7 @@ export const AdminDashboard: React.FC = () => {
     };
 
     setProjects([...projects, newProj]);
-    syncToBackend('/api/admin/projects', [...projects, newProj]);
+    syncAllToBackend('/api/admin/projects', [...projects, newProj]);
     setIsAddingProject(false);
     resetProjectForm();
     addToast('success', `PROJECT [${newProj.title}] compiled and synced to Supabase.`);
@@ -408,7 +408,7 @@ export const AdminDashboard: React.FC = () => {
 
     const newProjects = projects.map((p) => (p.id === editingProject.id ? updated : p));
     setProjects(newProjects);
-    syncToBackend('/api/admin/projects', newProjects);
+    syncAllToBackend('/api/admin/projects', newProjects);
     setIsAddingProject(false);
     setEditingProject(null);
     resetProjectForm();
@@ -419,7 +419,7 @@ export const AdminDashboard: React.FC = () => {
     if (window.confirm(`Are you sure you want to delete project: "${title}"?`)) {
       const newProjects = projects.filter((p) => p.id !== id);
       setProjects(newProjects);
-      syncToBackend('/api/admin/projects', newProjects);
+      syncAllToBackend('/api/admin/projects', newProjects);
       addToast('info', `PROJECT [${title}] deleted & synced to Supabase.`);
     }
   };
@@ -447,7 +447,7 @@ export const AdminDashboard: React.FC = () => {
     };
 
     setSkills([...skills, newSkill]);
-    syncToBackend('/api/admin/skills', [...skills, newSkill]);
+    syncAllToBackend('/api/admin/skills', [...skills, newSkill]);
     setIsAddingSkill(false);
     resetSkillForm();
     addToast('success', `SKILL [${newSkill.name}] registered & synced to Supabase.`);
@@ -472,7 +472,7 @@ export const AdminDashboard: React.FC = () => {
 
     const newSkills = skills.map((s) => (s.id === editingSkill.id ? updated : s));
     setSkills(newSkills);
-    syncToBackend('/api/admin/skills', newSkills);
+    syncAllToBackend('/api/admin/skills', newSkills);
     setIsAddingSkill(false);
     setEditingSkill(null);
     resetSkillForm();
@@ -483,7 +483,7 @@ export const AdminDashboard: React.FC = () => {
     if (window.confirm(`Are you sure you want to delete skill: "${name}"?`)) {
       const newSkills = skills.filter((s) => s.id !== id);
       setSkills(newSkills);
-      syncToBackend('/api/admin/skills', newSkills);
+      syncAllToBackend('/api/admin/skills', newSkills);
       addToast('info', `SKILL [${name}] deleted & synced to Supabase.`);
     }
   };
@@ -512,7 +512,7 @@ export const AdminDashboard: React.FC = () => {
     };
 
     setExperiences([...experiences, newExp]);
-    syncToBackend('/api/admin/experiences', [...experiences, newExp]);
+    syncAllToBackend('/api/admin/experiences', [...experiences, newExp]);
     setIsAddingExperience(false);
     resetExperienceForm();
     addToast('success', `EXPERIENCE at [${newExp.company}] registered & synced to Supabase.`);
@@ -539,7 +539,7 @@ export const AdminDashboard: React.FC = () => {
 
     const newExps = experiences.map((e) => (e.id === editingExperience.id ? updated : e));
     setExperiences(newExps);
-    syncToBackend('/api/admin/experiences', newExps);
+    syncAllToBackend('/api/admin/experiences', newExps);
     setIsAddingExperience(false);
     setEditingExperience(null);
     resetExperienceForm();
@@ -550,7 +550,7 @@ export const AdminDashboard: React.FC = () => {
     if (window.confirm(`Are you sure you want to delete experience at: "${company}"?`)) {
       const newExps = experiences.filter((e) => e.id !== id);
       setExperiences(newExps);
-      syncToBackend('/api/admin/experiences', newExps);
+      syncAllToBackend('/api/admin/experiences', newExps);
       addToast('info', `EXPERIENCE at [${company}] deleted & synced to Supabase.`);
     }
   };
