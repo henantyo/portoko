@@ -6,7 +6,6 @@ import { DEFAULT_PROFILE } from '../data/seed';
 import { CornerBrackets } from '../components/CornerBrackets';
 import { GlowButton } from '../components/GlowButton';
 import { Terminal, Mail, Phone, MapPin } from 'lucide-react';
-import emailjs from '@emailjs/browser';
 
 export const Contact: React.FC = () => {
   const [profile] = useLocalStorage<Profile>('neo_profile', DEFAULT_PROFILE);
@@ -97,17 +96,14 @@ export const Contact: React.FC = () => {
         setStep(4);
         setInputVal('');
         
-        // Send email via EmailJS
-        const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
-        const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
-        const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
-
-        emailjs.init(publicKey);
-        emailjs.send(serviceId, templateId, {
-          from_name: name,
-          from_email: email,
-          message: message,
-        }).then(() => {
+        // Send email via Formspree
+        fetch('https://formspree.io/f/xojovang', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, message }),
+        }).then((res) => {
+          if (!res.ok) throw new Error('Failed');
+          setHistory((prev) => [
           setHistory((prev) => [
             ...prev,
             `>> TRANSMISSION SUCCESSFUL!`,
@@ -116,10 +112,10 @@ export const Contact: React.FC = () => {
           ]);
           setStep(5);
         }).catch((err) => {
-          console.error('EmailJS error:', err);
+          console.error('Formspree error:', err);
           setHistory((prev) => [
             ...prev,
-            `>> [SYS_ERR] TRANSMISSION FAILED: ${err?.text || err?.message || 'Unknown error'}`,
+            `>> [SYS_ERR] TRANSMISSION FAILED: ${err?.message || 'Connection error'}`,
             `>> Please try again or contact directly via email.`
           ]);
           setStep(3);
