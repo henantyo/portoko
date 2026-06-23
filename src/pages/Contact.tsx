@@ -104,7 +104,6 @@ export const Contact: React.FC = () => {
         }).then((res) => {
           if (!res.ok) throw new Error('Failed');
           setHistory((prev) => [
-          setHistory((prev) => [
             ...prev,
             `>> TRANSMISSION SUCCESSFUL!`,
             `>> [SYS_OK] Message sent to ${profile.name} via Email API.`,
