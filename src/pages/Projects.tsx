@@ -103,7 +103,6 @@ export const Projects: React.FC = () => {
                 key={project.id}
                 to="/projects/$projectId"
                 params={{ projectId: project.id }}
-                layout
                 className="relative border border-[var(--border-main)] bg-[var(--bg-surface)] overflow-hidden group hover:shadow-[0_0_20px_rgba(34,211,238,0.1)] transition-all flex flex-col h-full"
                 style={{ clipPath: 'polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 10px)' }}
               >
