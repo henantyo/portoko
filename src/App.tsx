@@ -26,6 +26,7 @@ import { Skills } from './pages/Skills';
 import { Projects } from './pages/Projects';
 import { ExperiencePage } from './pages/Experience';
 import { Contact } from './pages/Contact';
+import { ProjectDetail } from './pages/ProjectDetail';
 import { AdminLogin } from './pages/AdminLogin';
 import { AdminDashboard } from './pages/AdminDashboard';
 
@@ -103,6 +104,12 @@ const projectsRoute = createRoute({
   component: Projects,
 });
 
+const projectDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/projects/$projectId',
+  component: ProjectDetail,
+});
+
 const experienceRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/experience',
@@ -135,6 +142,7 @@ const routeTree = rootRoute.addChildren([
   aboutRoute,
   skillsRoute,
   projectsRoute,
+  projectDetailRoute,
   experienceRoute,
   contactRoute,
   adminLoginRoute,

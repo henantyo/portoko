@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from '@tanstack/react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { CornerBrackets } from '../components/CornerBrackets';
@@ -98,22 +99,12 @@ export const Projects: React.FC = () => {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {filteredProjects.map((project, i) => (
-              <motion.a
+              <Link
                 key={project.id}
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                to="/projects/$projectId"
+                params={{ projectId: project.id }}
                 layout
-                initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -50, scale: 0.9 }}
-                transition={{ duration: 0.5, type: 'spring' as const, stiffness: 90, damping: 15 }}
-                whileHover={{ 
-                  y: -6,
-                  borderColor: 'rgba(34, 211, 238, 0.4)',
-                  boxShadow: '0 0 25px rgba(34, 211, 238, 0.15)'
-                }}
-                className="relative border border-[var(--border-main)] bg-[var(--bg-surface)] overflow-hidden group hover:shadow-[0_0_20px_rgba(34,211,238,0.1)] transition-all flex flex-col h-full block"
+                className="relative border border-[var(--border-main)] bg-[var(--bg-surface)] overflow-hidden group hover:shadow-[0_0_20px_rgba(34,211,238,0.1)] transition-all flex flex-col h-full"
                 style={{ clipPath: 'polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 10px)' }}
               >
                 <CornerBrackets colorClass="border-[var(--border-strong)] group-hover:border-[var(--accent-cyan)]/50" size={8} />
@@ -175,19 +166,13 @@ export const Projects: React.FC = () => {
 
                     {/* Action Links */}
                     <div className="flex items-center gap-4 pt-1 border-t border-[var(--border-main)] font-mono text-[10px]">
-                      {project.githubUrl && (
-                        <motion.span
-                          whileHover={{ scale: 1.05, x: 2 }}
-                          className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
-                        >
-                          <Github className="w-3.5 h-3.5" />
-                          <span>SOURCE_CODE</span>
-                        </motion.span>
-                      )}
+                      <span className="text-[var(--accent-cyan)] flex items-center gap-1">
+                        <span>VIEW_DETAILS</span>
+                      </span>
                     </div>
                   </div>
                 </div>
-              </motion.a>
+              </Link>
             ))}
           </motion.div>
         )}
