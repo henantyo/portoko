@@ -6,6 +6,7 @@ import { DEFAULT_PROFILE } from '../data/seed';
 import { CornerBrackets } from '../components/CornerBrackets';
 import { GlowButton } from '../components/GlowButton';
 import { Terminal, Mail, Phone, MapPin } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 export const Contact: React.FC = () => {
   const [profile] = useLocalStorage<Profile>('neo_profile', DEFAULT_PROFILE);
@@ -96,16 +97,33 @@ export const Contact: React.FC = () => {
         setStep(4);
         setInputVal('');
         
-        // Simulate sending
-        setTimeout(() => {
+        // Send email via EmailJS
+        const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
+        const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
+        const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
+
+        emailjs.init(publicKey);
+        emailjs.send(serviceId, templateId, {
+          from_name: name,
+          from_email: email,
+          message: message,
+        }).then(() => {
           setHistory((prev) => [
             ...prev,
             `>> TRANSMISSION SUCCESSFUL!`,
-            `>> [SYS_OK] Message sent to ${profile.name} via LocalStorage API.`,
-            `>> Thank you! Ahmad Farhan will reply shortly.`
+            `>> [SYS_OK] Message sent to ${profile.name} via Email API.`,
+            `>> Thank you! ${profile.name} will reply shortly.`
           ]);
           setStep(5);
-        }, 1500);
+        }).catch((err) => {
+          console.error('EmailJS error:', err);
+          setHistory((prev) => [
+            ...prev,
+            `>> [SYS_ERR] TRANSMISSION FAILED: ${err?.text || err?.message || 'Unknown error'}`,
+            `>> Please try again or contact directly via email.`
+          ]);
+          setStep(3);
+        });
         return;
       } else if (trimmed.toUpperCase() === 'RESET' || trimmed.toUpperCase() === 'R') {
         setName('');
