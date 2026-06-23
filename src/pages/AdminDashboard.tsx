@@ -344,6 +344,7 @@ export const AdminDashboard: React.FC = () => {
     e.preventDefault();
     setProfile(profileForm);
     syncProfileToBackend(profileForm);
+    localStorage.removeItem('portoko_portfolio_cache');
     addToast('success', 'PROFILE_DATA updated & synced to Supabase.');
   };
 
