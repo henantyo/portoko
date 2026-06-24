@@ -99,7 +99,7 @@ export const AdminDashboard: React.FC = () => {
     if (auth) loadData();
   }, [auth]);
 
-  // Sync helper: save ALL data to Supabase
+  // Sync helper: save ALL data to Supabase + clear cache
   const syncAllToBackend = async (data: { projects?: Project[]; skills?: Skill[]; experiences?: Experience[] } = {}) => {
     try {
       const backendUrl = (import.meta.env.VITE_BACKEND_BASE_URL || 'http://localhost:4000').toString();
@@ -113,6 +113,7 @@ export const AdminDashboard: React.FC = () => {
           experiences: data.experiences ?? experiences,
         }),
       });
+      localStorage.removeItem('portoko_portfolio_cache');
     } catch {}
   };
 
