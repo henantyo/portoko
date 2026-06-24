@@ -114,6 +114,7 @@ export const AdminDashboard: React.FC = () => {
         }),
       });
       localStorage.removeItem('portoko_portfolio_cache');
+      window.dispatchEvent(new Event('portfolio-refresh'));
     } catch {}
   };
 
