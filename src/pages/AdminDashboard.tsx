@@ -386,37 +386,6 @@ export const AdminDashboard: React.FC = () => {
     addToast('success', `PROJECT [${newProj.title}] compiled and synced to Supabase.`);
   };
 
-  // ----------------------------------------------------
-  // PROJECTS CRUD
-  // ----------------------------------------------------
-  const handleAddProject = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!projectForm.title || !projectForm.description) {
-      addToast('error', 'Validation failed: Title and Description are required.');
-      return;
-    }
-
-    const techArray = techInput
-      ? techInput.split(',').map((t) => t.trim()).filter(Boolean)
-      : [];
-
-    const newProj: Project = {
-      id: 'p-' + Math.random().toString(36).substring(2, 7),
-      title: projectForm.title || '',
-      description: projectForm.description || '',
-      image: projectForm.image || 'https://images.unsplash.com/photo-1518770660439-4636190af475',
-      techStack: techArray,
-      githubUrl: projectForm.githubUrl,
-      featured: !!projectForm.featured,
-    };
-
-    setProjects([...projects, newProj]);
-    syncAllToBackend({ projects: [...projects, newProj] });
-    setIsAddingProject(false);
-    resetProjectForm();
-    addToast('success', `PROJECT [${newProj.title}] compiled and synced to Supabase.`);
-  };
-
   const handleEditProject = (proj: Project) => {
     setEditingProject(proj);
     setProjectForm(proj);
